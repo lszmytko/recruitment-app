@@ -1,0 +1,150 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { Box, Button, Flex, Spinner, Table, TextField } from "@radix-ui/themes";
+import { useState } from "react";
+import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
+import * as Form from "@radix-ui/react-form";
+
+import { fetchTags } from "./fetchTags";
+import { DevTool } from "@hookform/devtools";
+import Tag from "./Tag";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+interface FormInputs {
+  tagsPerPage: number;
+}
+
+const schema = z.object({
+  tagsPerPage: z.coerce
+    .number()
+    .min(1, { message: "Najmniejsza wartość: 1" })
+    .max(50, { message: "Największa wartość: 50" })
+    .multipleOf(1, { message: "Wartość musi być liczbą całkowitą" }),
+});
+
+function Tags() {
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
+  const {
+    handleSubmit,
+    control,
+    getValues,
+    formState: { errors },
+  } = useForm<FormInputs>({
+    defaultValues: {
+      tagsPerPage: 5,
+    },
+    resolver: zodResolver(schema),
+  });
+
+  console.log("errors", errors);
+
+  const tagsPerPage = getValues("tagsPerPage");
+
+  const { isFetching, data, isError, refetch } = useQuery({
+    queryKey: ["fetchPosts", tagsPerPage],
+    queryFn: () => fetchTags(tagsPerPage),
+    refetchOnWindowFocus: false,
+    retry: 0,
+  });
+
+  if (isError)
+    return (
+      <div>
+        <p className="mb-4 text-red-500 text-center">Coś poszło nie tak...</p>
+        <div className="flex justify-center">
+          <Button
+            variant="solid"
+            className="cursor-pointer "
+            onClick={() => window.location.reload()}
+          >
+            Odśwież stronę
+          </Button>
+        </div>
+      </div>
+    );
+
+  const sortedData = data?.data.items.sort((a, b) => {
+    return order === "asc" ? a.count - b.count : b.count - a.count;
+  });
+
+  const onSubmit: SubmitHandler<FormInputs> = () => {
+    console.log("onsubmit");
+    refetch();
+  };
+
+  return (
+    <div>
+      <div>
+        <Flex justify="center">
+          <Box minWidth="200px" mb="10px">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Controller
+                name="tagsPerPage"
+                control={control}
+                render={({ field }) => (
+                  <TextField.Root
+                    {...field}
+                    size="2"
+                    placeholder="Liczba tagów na stronie"
+                    type="number"
+                    step={1}
+                    className="mb-2"
+                  />
+                )}
+              />
+              <Form.Submit asChild>
+                <Button
+                  color="cyan"
+                  variant="soft"
+                  className="cursor-pointer w-full"
+                >
+                  Wyszukaj
+                </Button>
+              </Form.Submit>
+            </form>
+          </Box>
+        </Flex>
+      </div>
+      {isFetching ? (
+        <div className="flex justify-center">
+          <Spinner size="3" />
+        </div>
+      ) : (
+        <Table.Root variant="surface">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeaderCell>Autor</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>
+                <Flex className="gap-2">
+                  <span>Count</span>{" "}
+                  {order === "asc" ? (
+                    <ArrowDownIcon
+                      onClick={() => setOrder("desc")}
+                      className="cursor-pointer"
+                    />
+                  ) : (
+                    <ArrowUpIcon
+                      onClick={() => setOrder("asc")}
+                      className="cursor-pointer"
+                    />
+                  )}
+                </Flex>
+              </Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {sortedData?.map((post, index) => {
+              const { name, count } = post;
+              return <Tag name={name} count={count} key={index} />;
+            })}
+          </Table.Body>
+        </Table.Root>
+      )}
+      <DevTool control={control} />
+    </div>
+  );
+}
+
+export default Tags;

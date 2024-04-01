@@ -47,8 +47,11 @@ function Tags() {
   });
 
   useEffect(() => {
+    console.log("*** useeffect");
     mutate();
   }, [mutate]);
+
+  console.log({ isPending });
 
   if (isError) return <RefreshButton />;
 

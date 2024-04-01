@@ -7,9 +7,11 @@ import { DevTool } from "@hookform/devtools";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ErrorMessage } from "@hookform/error-message";
 
 import { fetchTags } from "./fetchTags";
 import Tag from "./Tag";
+import RefreshButton from "./RefreshButton";
 
 interface FormInputs {
   tagsPerPage: number;
@@ -18,8 +20,8 @@ interface FormInputs {
 const schema = z.object({
   tagsPerPage: z.coerce
     .number()
-    .min(1, { message: "Najmniejsza wartość: 1" })
-    .max(50, { message: "Największa wartość: 50" })
+    .min(1, { message: "Najmniejsza możliwa wartość: 1" })
+    .max(50, { message: "Największa możliwa wartość: 50" })
     .multipleOf(1, { message: "Wartość musi być liczbą całkowitą" }),
 });
 
@@ -38,8 +40,6 @@ function Tags() {
     reValidateMode: "onSubmit",
   });
 
-  console.log("errors", errors);
-
   const tagsPerPage = getValues("tagsPerPage");
 
   const { data, isError, mutate, isPending } = useMutation({
@@ -50,21 +50,7 @@ function Tags() {
     mutate();
   }, [mutate]);
 
-  if (isError)
-    return (
-      <div>
-        <p className="mb-4 text-red-500 text-center">Coś poszło nie tak...</p>
-        <div className="flex justify-center">
-          <Button
-            variant="solid"
-            className="cursor-pointer "
-            onClick={() => window.location.reload()}
-          >
-            Odśwież stronę
-          </Button>
-        </div>
-      </div>
-    );
+  if (isError) return <RefreshButton />;
 
   const sortedData = data?.data.items.sort((a, b) => {
     return order === "asc" ? a.count - b.count : b.count - a.count;
@@ -92,6 +78,13 @@ function Tags() {
                     step={1}
                     className="mb-2"
                   />
+                )}
+              />
+              <ErrorMessage
+                errors={errors}
+                name="tagsPerPage"
+                render={({ message }) => (
+                  <p className="text-red-500 text-sm text-center">{message}</p>
                 )}
               />
               <Form.Submit asChild>

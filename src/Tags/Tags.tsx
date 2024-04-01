@@ -1,16 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
-
+import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Box, Button, Flex, Spinner, Table, TextField } from "@radix-ui/themes";
-import { useState } from "react";
 import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 import * as Form from "@radix-ui/react-form";
+import { DevTool } from "@hookform/devtools";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { fetchTags } from "./fetchTags";
-import { DevTool } from "@hookform/devtools";
 import Tag from "./Tag";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
 interface FormInputs {
   tagsPerPage: number;
@@ -36,18 +35,20 @@ function Tags() {
       tagsPerPage: 5,
     },
     resolver: zodResolver(schema),
+    reValidateMode: "onSubmit",
   });
 
   console.log("errors", errors);
 
   const tagsPerPage = getValues("tagsPerPage");
 
-  const { isFetching, data, isError, refetch } = useQuery({
-    queryKey: ["fetchPosts", tagsPerPage],
-    queryFn: () => fetchTags(tagsPerPage),
-    refetchOnWindowFocus: false,
-    retry: 0,
+  const { data, isError, mutate, isPending } = useMutation({
+    mutationFn: () => fetchTags(tagsPerPage),
   });
+
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
 
   if (isError)
     return (
@@ -70,8 +71,7 @@ function Tags() {
   });
 
   const onSubmit: SubmitHandler<FormInputs> = () => {
-    console.log("onsubmit");
-    refetch();
+    mutate();
   };
 
   return (
@@ -107,7 +107,7 @@ function Tags() {
           </Box>
         </Flex>
       </div>
-      {isFetching ? (
+      {isPending ? (
         <div className="flex justify-center">
           <Spinner size="3" />
         </div>

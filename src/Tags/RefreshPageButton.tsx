@@ -1,6 +1,6 @@
 import { Button } from "@radix-ui/themes";
 
-export default function RefreshButton() {
+export default function RefreshPageButton() {
   return (
     <div>
       <p className="mb-4 text-red-500 text-center">Coś poszło nie tak...</p>

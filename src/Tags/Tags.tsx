@@ -11,7 +11,7 @@ import { ErrorMessage } from "@hookform/error-message";
 
 import { fetchTags } from "./fetchTags";
 import Tag from "./Tag";
-import RefreshButton from "./RefreshButton";
+import RefreshPageButton from "./RefreshPageButton";
 
 interface FormInputs {
   tagsPerPage: number;
@@ -50,7 +50,7 @@ function Tags() {
     mutate();
   }, [mutate]);
 
-  if (isError) return <RefreshButton />;
+  if (isError) return <RefreshPageButton />;
 
   const sortedData = data?.data.items.sort((a, b) => {
     return order === "asc" ? a.count - b.count : b.count - a.count;

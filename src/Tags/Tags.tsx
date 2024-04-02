@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Box, Button, Flex, Spinner, Table, TextField } from "@radix-ui/themes";
+import { Button, Flex, Spinner, Table, TextField } from "@radix-ui/themes";
 import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 import * as Form from "@radix-ui/react-form";
 import { DevTool } from "@hookform/devtools";
@@ -12,21 +12,27 @@ import { ErrorMessage } from "@hookform/error-message";
 import { fetchTags } from "./fetchTags";
 import Tag from "./Tag";
 import RefreshPageButton from "./RefreshPageButton";
+import Pagination from "./Pagination";
+import { DEFAULT_PAGE_SIZE, MAX_TAG_COUNT } from "./consts";
 
 interface FormInputs {
-  tagsPerPage: number;
+  tagsNumber: number;
 }
 
 const schema = z.object({
-  tagsPerPage: z.coerce
+  tagsNumber: z.coerce
     .number()
     .min(1, { message: "Najmniejsza możliwa wartość: 1" })
-    .max(50, { message: "Największa możliwa wartość: 50" })
+    .max(MAX_TAG_COUNT, {
+      message: `Największa możliwa wartość: ${MAX_TAG_COUNT}`,
+    })
     .multipleOf(1, { message: "Wartość musi być liczbą całkowitą" }),
 });
 
 function Tags() {
   const [order, setOrder] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+
   const {
     handleSubmit,
     control,
@@ -34,21 +40,22 @@ function Tags() {
     formState: { errors },
   } = useForm<FormInputs>({
     defaultValues: {
-      tagsPerPage: 5,
+      tagsNumber: 5,
     },
     resolver: zodResolver(schema),
     reValidateMode: "onSubmit",
   });
 
-  const tagsPerPage = getValues("tagsPerPage");
+  const tagsNumber = getValues("tagsNumber");
+  const pageCount = Math.ceil(tagsNumber / DEFAULT_PAGE_SIZE);
 
   const { data, isError, mutate, isPending } = useMutation({
-    mutationFn: () => fetchTags(tagsPerPage),
+    mutationFn: () => fetchTags(page, tagsNumber),
   });
 
   useEffect(() => {
     mutate();
-  }, [mutate]);
+  }, [mutate, page]);
 
   if (isError) return <RefreshPageButton />;
 
@@ -64,10 +71,10 @@ function Tags() {
     <div>
       <div>
         <Flex justify="center">
-          <Box minWidth="200px" mb="10px">
+          <div className="min-w-[200px] mb-3">
             <form onSubmit={handleSubmit(onSubmit)}>
               <Controller
-                name="tagsPerPage"
+                name="tagsNumber"
                 control={control}
                 render={({ field }) => (
                   <TextField.Root
@@ -77,12 +84,13 @@ function Tags() {
                     type="number"
                     step={1}
                     className="mb-2"
+                    max={MAX_TAG_COUNT}
                   />
                 )}
               />
               <ErrorMessage
                 errors={errors}
-                name="tagsPerPage"
+                name="tagsNumber"
                 render={({ message }) => (
                   <p className="text-red-500 text-sm text-center">{message}</p>
                 )}
@@ -97,43 +105,50 @@ function Tags() {
                 </Button>
               </Form.Submit>
             </form>
-          </Box>
+          </div>
         </Flex>
       </div>
       {isPending ? (
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-4">
           <Spinner size="3" />
         </div>
       ) : (
-        <Table.Root variant="surface">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeaderCell>Autor</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>
-                <Flex className="gap-2">
-                  <span>Count</span>{" "}
-                  {order === "asc" ? (
-                    <ArrowDownIcon
-                      onClick={() => setOrder("desc")}
-                      className="cursor-pointer"
-                    />
-                  ) : (
-                    <ArrowUpIcon
-                      onClick={() => setOrder("asc")}
-                      className="cursor-pointer"
-                    />
-                  )}
-                </Flex>
-              </Table.ColumnHeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {sortedData?.map((post, index) => {
-              const { name, count } = post;
-              return <Tag name={name} count={count} key={index} />;
-            })}
-          </Table.Body>
-        </Table.Root>
+        <>
+          <div className="flex justify-center">
+            <Table.Root variant="surface" className="w-full max-w-[700px]">
+              <Table.Header>
+                <Table.Row>
+                  <Table.ColumnHeaderCell>Autor</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell>
+                    <Flex className="gap-2">
+                      <span>Count</span>{" "}
+                      {order === "asc" ? (
+                        <ArrowDownIcon
+                          onClick={() => setOrder("desc")}
+                          className="cursor-pointer"
+                        />
+                      ) : (
+                        <ArrowUpIcon
+                          onClick={() => setOrder("asc")}
+                          className="cursor-pointer"
+                        />
+                      )}
+                    </Flex>
+                  </Table.ColumnHeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {sortedData?.map((post, index) => {
+                  const { name, count } = post;
+                  return <Tag name={name} count={count} key={index} />;
+                })}
+              </Table.Body>
+            </Table.Root>
+          </div>
+          {tagsNumber > DEFAULT_PAGE_SIZE ? (
+            <Pagination pageCount={pageCount} setPage={setPage} page={page} />
+          ) : null}
+        </>
       )}
       <DevTool control={control} />
     </div>

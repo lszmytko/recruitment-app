@@ -73,6 +73,7 @@ function Tags() {
 
   const onSubmit: SubmitHandler<FormInputs> = () => {
     mutate();
+    setPage(1);
   };
 
   return (

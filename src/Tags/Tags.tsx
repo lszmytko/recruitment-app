@@ -121,8 +121,8 @@ function Tags() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Autor</TableHead>
-                    <TableHead>
-                      <div className="flex gap-2 items-center">
+                    <TableHead className="text-right">
+                      <div className="flex gap-2 items-center justify-end">
                         <span>Count</span>{" "}
                         {order === "asc" ? (
                           <FaArrowDown

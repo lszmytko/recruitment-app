@@ -11,6 +11,6 @@ type Story = StoryObj<typeof RefreshPageButton>;
 export const Primary: Story = {
   args: {
     primary: true,
-    label: "Button",
+    label: "RefreshPageButton",
   },
 };

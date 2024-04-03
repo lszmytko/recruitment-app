@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Button, Flex, Spinner, Table, TextField } from "@radix-ui/themes";
-import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
-import * as Form from "@radix-ui/react-form";
 import { DevTool } from "@hookform/devtools";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorMessage } from "@hookform/error-message";
+import { Button } from "@/@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 
 import { fetchTags } from "./fetchTags";
 import Tag from "./Tag";
 import RefreshPageButton from "./RefreshPageButton";
 import Pagination from "./Pagination";
 import { DEFAULT_PAGE_SIZE, MAX_TAG_COUNT } from "./consts";
+import Loader from "./Loader";
 
 interface FormInputs {
   tagsNumber: number;
@@ -70,16 +77,15 @@ function Tags() {
   return (
     <div>
       <div>
-        <Flex justify="center">
+        <div className="flex justify-center">
           <div className="min-w-[200px] mb-3">
             <form onSubmit={handleSubmit(onSubmit)}>
               <Controller
                 name="tagsNumber"
                 control={control}
                 render={({ field }) => (
-                  <TextField.Root
+                  <Input
                     {...field}
-                    size="2"
                     placeholder="Liczba tagów na stronie"
                     type="number"
                     step={1}
@@ -95,55 +101,51 @@ function Tags() {
                   <p className="text-red-500 text-sm text-center">{message}</p>
                 )}
               />
-              <Form.Submit asChild>
-                <Button
-                  color="cyan"
-                  variant="soft"
-                  className="cursor-pointer w-full"
-                >
-                  Wyszukaj
-                </Button>
-              </Form.Submit>
+              <Button color="cyan" className="cursor-pointer w-full">
+                Wyszukaj
+              </Button>
             </form>
           </div>
-        </Flex>
+        </div>
       </div>
       {isPending ? (
         <div className="flex justify-center mt-4">
-          <Spinner size="3" />
+          <Loader />
         </div>
       ) : (
         <>
           <div className="flex justify-center">
-            <Table.Root variant="surface" className="w-full max-w-[700px]">
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeaderCell>Autor</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>
-                    <Flex className="gap-2">
-                      <span>Count</span>{" "}
-                      {order === "asc" ? (
-                        <ArrowDownIcon
+            <div>
+              <Table className="max-w-[700px] w-screen">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Autor</TableHead>
+                    <TableHead>
+                      <div className="gap-2">
+                        <span>Count</span>{" "}
+                        {/* {order === "asc" ? (
+                          <ArrowDownIcon
                           onClick={() => setOrder("desc")}
                           className="cursor-pointer"
-                        />
-                      ) : (
-                        <ArrowUpIcon
-                          onClick={() => setOrder("asc")}
-                          className="cursor-pointer"
-                        />
-                      )}
-                    </Flex>
-                  </Table.ColumnHeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {sortedData?.map((post, index) => {
-                  const { name, count } = post;
-                  return <Tag name={name} count={count} key={index} />;
-                })}
-              </Table.Body>
-            </Table.Root>
+                          />
+                          ) : (
+                            <ArrowUpIcon
+                            onClick={() => setOrder("asc")}
+                            className="cursor-pointer"
+                            />
+                          )} */}
+                      </div>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedData?.map((post, index) => {
+                    const { name, count } = post;
+                    return <Tag name={name} count={count} key={index} />;
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
           {tagsNumber > DEFAULT_PAGE_SIZE ? (
             <Pagination pageCount={pageCount} setPage={setPage} page={page} />

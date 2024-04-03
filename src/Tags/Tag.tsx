@@ -1,4 +1,4 @@
-import { Table } from "@radix-ui/themes";
+import { TableCell, TableRow } from "@/components/ui/table";
 
 type Props = {
   name: string;
@@ -7,14 +7,14 @@ type Props = {
 
 export default function Tag({ name, count }: Props) {
   return (
-    <Table.Row>
-      <Table.Cell>{name}</Table.Cell>
-      <Table.Cell>
+    <TableRow>
+      <TableCell>{name}</TableCell>
+      <TableCell>
         {count.toLocaleString("en-US", {
           style: "decimal",
           maximumFractionDigits: 2,
         })}
-      </Table.Cell>
-    </Table.Row>
+      </TableCell>
+    </TableRow>
   );
 }

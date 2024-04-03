@@ -1,4 +1,4 @@
-import { Button } from "@radix-ui/themes";
+import { Button } from "@/@/components/ui/button";
 
 export default function RefreshPageButton() {
   return (
@@ -6,8 +6,8 @@ export default function RefreshPageButton() {
       <p className="mb-4 text-red-500 text-center">Coś poszło nie tak...</p>
       <div className="flex justify-center">
         <Button
-          variant="solid"
-          className="cursor-pointer "
+          className="cursor-pointer"
+          variant="secondary"
           onClick={() => window.location.reload()}
         >
           Odśwież stronę

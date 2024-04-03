@@ -1,16 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import RefreshPageButton from "../Tags/RefreshPageButton";
+import Tags from "@/Tags/Tags";
 
-const meta: Meta<typeof RefreshPageButton> = {
-  component: RefreshPageButton,
+const meta: Meta<typeof Tags> = {
+  title: "Tags",
+  component: Tags,
 };
 
 export default meta;
-type Story = StoryObj<typeof RefreshPageButton>;
+type Story = StoryObj<typeof Tags>;
 
-export const Primary: Story = {
-  args: {
-    primary: true,
-    label: "RefreshPageButton",
-  },
-};
+export const TagsComponent: Story = {};

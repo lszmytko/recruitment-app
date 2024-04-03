@@ -5,7 +5,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorMessage } from "@hookform/error-message";
-import { Button } from "@/@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -17,11 +17,11 @@ import { Input } from "@/components/ui/input";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa6";
 
 import { fetchTags } from "./fetchTags";
-import Tag from "./Tag";
-import RefreshPageButton from "./RefreshPageButton";
-import Pagination from "./Pagination";
+import Tag from "./parts/Tag";
+import RefreshPageButton from "./parts/RefreshPageButton";
+import Pagination from "./parts/Pagination";
 import { DEFAULT_PAGE_SIZE, MAX_TAG_COUNT } from "./consts";
-import Loader from "./Loader";
+import Loader from "./parts/Loader";
 
 interface FormInputs {
   tagsNumber: number;

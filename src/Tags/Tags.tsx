@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa6";
 
 import { fetchTags } from "./fetchTags";
 import Tag from "./Tag";
@@ -121,19 +122,19 @@ function Tags() {
                   <TableRow>
                     <TableHead>Autor</TableHead>
                     <TableHead>
-                      <div className="gap-2">
+                      <div className="flex gap-2 items-center">
                         <span>Count</span>{" "}
-                        {/* {order === "asc" ? (
-                          <ArrowDownIcon
-                          onClick={() => setOrder("desc")}
-                          className="cursor-pointer"
+                        {order === "asc" ? (
+                          <FaArrowDown
+                            onClick={() => setOrder("desc")}
+                            className="cursor-pointer"
                           />
-                          ) : (
-                            <ArrowUpIcon
+                        ) : (
+                          <FaArrowUp
                             onClick={() => setOrder("asc")}
                             className="cursor-pointer"
-                            />
-                          )} */}
+                          />
+                        )}
                       </div>
                     </TableHead>
                   </TableRow>

@@ -1,6 +1,6 @@
 # Recruitment app
 
-Recruitment app is an app written with React + Typoescript + Vite for recruitment purposes
+Recruitment app is an app written with React + Typescript + Vite for recruitment purposes
 
 # Starting Project
 
